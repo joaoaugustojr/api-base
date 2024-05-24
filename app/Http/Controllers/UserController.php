@@ -2,52 +2,57 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreUpdateUserRequest;
+use App\Http\Resources\UserResource;
+use App\Models\User;
+use App\Traits\HttpResponses;
+use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    use HttpResponses;
+
+    public function index()
     {
-        //
+        $user = User::paginate();
+        return UserResource::collection($user);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    public function store(StoreUpdateUserRequest $request)
+    {
+        $data = $request->validated();
+        $data["password"] = bcrypt($data["password"]);
+
+        $user = User::create($data);
+
+        return new UserResource($user);
+    }
+
     public function show($id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        return new UserResource($user);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+    public function update(StoreUpdateUserRequest $request, $id)
     {
-        //
+        $data = $request->validated();
+
+        if ($request->password) {
+            $data["password"] = bcrypt($request->password);
+        }
+
+        $user = User::findOrFail($id);
+        $user->update($data);
+
+        return new UserResource($user);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        //
+        User::findOrFail($id)->delete();
+
+        return $this->response('Success', Response::HTTP_NO_CONTENT);
     }
 }
