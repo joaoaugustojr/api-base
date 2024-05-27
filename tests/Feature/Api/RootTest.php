@@ -1,6 +1,6 @@
 <?php
 
 it("should return status code 200", function () {
-    $response = $this->get("/api");
-    $response->assertStatus(200);
+    $response = $this->get(route("api.root"));
+    $response->assertOk();
 });
