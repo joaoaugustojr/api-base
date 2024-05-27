@@ -53,6 +53,6 @@ class UserController extends Controller
     {
         User::findOrFail($id)->delete();
 
-        return $this->response('Success', Response::HTTP_NO_CONTENT);
+        return $this->response('success', Response::HTTP_NO_CONTENT);
     }
 }
